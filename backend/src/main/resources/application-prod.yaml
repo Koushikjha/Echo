@@ -1,0 +1,7 @@
+SMS_MOCK: false
+SMS_PROVIDER_URL: https://control.msg91.com/api/v5/widget/verifyAccessToken
+SMS_API_KEY: 561634AovvTdNN7JMB6a8352ceP1
+
+JPA_DDL_AUTO: validate
+
+SERVER_PORT: 8080

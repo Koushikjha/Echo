@@ -1,0 +1,6 @@
+/* index.css — Joy safe */
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}

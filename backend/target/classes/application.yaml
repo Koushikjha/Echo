@@ -1,0 +1,106 @@
+spring:
+  config:
+    import: optional:application-secrets.yaml
+  application:
+    name: Echo
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE}
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      pool-name: EchoHikariPool
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+      connection-timeout: 20000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO}
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 25
+        order_inserts: true
+        order_updates: true
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+      fail-on-empty-beans: false
+    deserialization:
+      fail-on-unknown-properties: false
+    default-property-inclusion: non_null
+    time-zone: Asia/Kolkata
+
+server:
+  port: ${SERVER_PORT}
+  servlet:
+    context-path: /
+  compression:
+    enabled: true
+    mime-types: application/json
+    min-response-size: 1024
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+    include-exception: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: Echo
+    description: a lifecycle driven chat platform
+    version: 1.0.0
+
+Echo:
+  otp:
+    expiry-minutes: 5
+    max-attempts: 3
+  sms:
+    mock: ${SMS_MOCK}
+    provider-url: ${SMS_PROVIDER_URL:}
+    api-key: ${SMS_API_KEY:}
+  jwt:
+    secret: ${JWT_SECRET}
+    expiry-ms: 86400000
+
+logging:
+  level:
+    root: INFO
+    com.example: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/Echo.log
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 30
+
