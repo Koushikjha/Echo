@@ -1,9 +1,0 @@
-SMS_MOCK: true
-
-JPA_DDL_AUTO: update
-
-SERVER_PORT: 8080
-
-
-
-
