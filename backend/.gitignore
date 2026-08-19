@@ -1,1 +1,2 @@
 src/main/resources/application-secrets.yaml
+target/classes/application-secrets.yaml
