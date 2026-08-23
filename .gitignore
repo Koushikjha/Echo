@@ -1,4 +1,43 @@
-/target
-/.idea
-*.log
+# backend
+
+backend/target
+backend/.idea
+backend*.log
+backend.env
+backend/*.jar
+backend/src/main/resources/application-secrets.yaml
+backend/target/classes/application-secrets.yaml
+
+
+# frontend
+frontend/logs
+frontend/*.log
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+frontend/lerna-debug.log*
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+
+#env
 .env
+.env.*
+backend/.env
+backend/.env.*
+frontend/.env
+frontend/.env.*
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.iml

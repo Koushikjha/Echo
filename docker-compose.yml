@@ -1,0 +1,22 @@
+services:
+  backend:
+    image: koushikjha/echo-backend:latest
+    container_name: echo-backend
+    ports:
+      - "8080:8080"
+    networks:
+      - echo-network
+
+  frontend:
+    image: koushikjha/echo-frontend:latest
+    container_name: echo-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - echo-network
+
+networks:
+  echo-network:
+    driver: bridge

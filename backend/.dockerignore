@@ -1,0 +1,15 @@
+.git
+.gitignore
+.idea
+.vscode
+*.iml
+
+target/
+*.jar
+
+.env
+.env.*
+src/main/resources/application-secrets.yaml
+target/classes/application-secrets.yaml
+
+
