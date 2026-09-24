@@ -133,7 +133,6 @@ public class ChatOrchestrationService {
         );
     }
 
-    // ===== GET USER CONVERSATION LIST =====
     @Transactional(readOnly = true)
     public List<ConversationListDTO> getUserConversations(Long userId) {
 
@@ -151,8 +150,7 @@ public class ChatOrchestrationService {
                 .map(ParticipantLifecycle::getConversationId)
                 .toList();
 
-        // Single joined query — returns conversationId, otherUserId, username, lastMessageAt
-        // Eliminates N+1: no per-row calls to participantService or userService
+        // N+1
         List<ConversationListDTO> result = conversationService
                 .findConversationListForUser(conversationIds, userId);
 
@@ -177,7 +175,7 @@ public class ChatOrchestrationService {
                         dto.setLastMessageDeleted(msg.isDeletedForEveryone());
                     });
 
-            // Unread count — within active lifecycle window
+            // Unread count
             ParticipantLifecycle lc = lifecycles.stream()
                     .filter(l -> l.getConversationId().equals(dto.getConversationId()))
                     .findFirst().orElse(null);
@@ -200,13 +198,10 @@ public class ChatOrchestrationService {
         log.info("[DELETE_MESSAGE_FOR_EVERYONE] convoId={} messageId={} userId={}",
                 conversationId, messageId, userId);
 
-        // 1 — Validate conversation
         conversationService.getById(conversationId);
 
-        // 2 — Validate sender has active lifecycle
         participantLifecycleService.validateActiveParticipant(conversationId, userId);
 
-        // 3 — Fetch message and validate sender ownership
         ChatMessage message = messageService.getById(messageId);
 
         if(!message.getSenderId().equals(userId)){
@@ -215,7 +210,6 @@ public class ChatOrchestrationService {
             throw new IllegalStateException("Cannot delete for everyone a message you have not sent");
         }
 
-        // 4 — Sender's own receipt check — if deleted for me, they have no visibility over it
         MessageReceipt senderReceipt = receiptService.getReceiptByMessageAndUser(messageId, userId);
 
         if (senderReceipt.isDeletedForMe()) {
@@ -224,7 +218,6 @@ public class ChatOrchestrationService {
             throw new IllegalStateException("Cannot delete for everyone a message you have already deleted for yourself");
         }
 
-        // 5 — Already deleted for everyone
         if (message.isDeletedForEveryone()) {
             log.warn("[DELETE_FOR_EVERYONE_REJECTED] Already deleted for everyone. messageId={}", messageId);
             throw new IllegalStateException("Message is already deleted for everyone");
@@ -241,7 +234,6 @@ public class ChatOrchestrationService {
                 latest != null &&
                         latest.getId().equals(messageId);
 
-        // 6 — Set deletedForEveryone = true
         messageService.markDeletedForEveryone(message);
 
 
@@ -304,23 +296,18 @@ public class ChatOrchestrationService {
         log.info("[DELETE_MESSAGE_FOR_ME] convoId={} messageId={} userId={}",
                 conversationId, messageId, userId);
 
-        // 1 — Validate conversation
         conversationService.getById(conversationId);
 
-        // 2 — Validate user has active lifecycle
         participantLifecycleService.validateActiveParticipant(conversationId, userId);
 
-        // 3 — Fetch user's receipt
         MessageReceipt receipt = receiptService.getReceiptByMessageAndUser(messageId, userId);
 
-        // 4 — Already deleted for me
         if (receipt.isDeletedForMe()) {
             log.warn("[DELETE_FOR_ME_REJECTED] Already deleted for me. messageId={} userId={}",
                     messageId, userId);
             throw new IllegalStateException("Message already deleted for me");
         }
 
-        // 5 — Set deletedForMe = true on receipt only — ChatMessage untouched
         receiptService.markDeletedForMe(receipt);
 
         eventLogService.logEvent(
@@ -342,16 +329,12 @@ public class ChatOrchestrationService {
 
         log.info("[EDIT_MESSAGE] convoId={} messageId={} userId={}", conversationId, messageId, userId);
 
-        // 1 — Validate conversation
         conversationService.getById(conversationId);
 
-        // 2 — Validate sender has active lifecycle
         participantLifecycleService.validateActiveParticipant(conversationId, userId);
 
-        // 3 — Fetch message and validate ownership
         ChatMessage message = messageService.getByIdAndSender(messageId, userId);
 
-        // 4 — Cannot edit a deleted message
         if (message.isDeletedForEveryone()) {
             log.warn("[EDIT_REJECTED] Message deleted for everyone. messageId={}", messageId);
             throw new IllegalStateException("Cannot edit a message deleted for everyone");
@@ -359,7 +342,6 @@ public class ChatOrchestrationService {
 
         String oldContent= message.getContent();
 
-        // 5 — Update content and editedAt only — receipts are never touched
         messageService.editMessage(message, newContent);
 
         eventLogService.logEvent(

@@ -27,10 +27,7 @@ public class AuthController {
 
     private final OnlineUserTracker onlineUserTracker;
 
-    /**
-     * Step 1 — request OTP.
-     * Accepts both JSON (API) and form POST (browser login page).
-     */
+
     @PostMapping(value = "/send-otp",
             consumes = {"application/json", "application/x-www-form-urlencoded"})
     public ResponseEntity<Void> sendOtp(
@@ -46,11 +43,7 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
-    /**
-     * Step 2 — verify OTP and receive JWT.
-     * Sets JWT as HttpOnly cookie so the browser can use it,
-     * and also returns JSON for API clients.
-     */
+
     @PostMapping(value = "/verify-otp",
             consumes = {"application/json", "application/x-www-form-urlencoded"})
     public ResponseEntity<AuthResponse> verifyOtp(
@@ -73,7 +66,6 @@ public class AuthController {
 
         AuthResponse auth = authService.verifyOtp(req);
 
-        // Set JWT cookie so browser pages are authenticated
         ResponseCookie cookie = ResponseCookie.from("JWT_TOKEN", auth.getAccessToken())
                 .httpOnly(true)
                 .secure(false)        // true if HTTPS
@@ -84,7 +76,6 @@ public class AuthController {
 
         response.addHeader("Set-Cookie", cookie.toString());
 
-        // If this was a browser form POST, redirect to home
         String accept = request.getHeader("Accept");
         if (accept == null || !accept.contains("application/json")) {
             try {

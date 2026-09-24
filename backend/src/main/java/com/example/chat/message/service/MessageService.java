@@ -33,7 +33,6 @@ public class MessageService {
 
         log.debug("[WRITE_SAFE_SAVE_ATTEMPT] convoId={} sender={}", convoId, senderId);
 
-        // 🔒 WRITE-SAFETY CHECK (time-of-use check)
         boolean convoStillActive =
                 conversationLifecycleRepository
                         .existsByConversationIdAndEndedAtIsNull(convoId);
@@ -169,13 +168,11 @@ public class MessageService {
                     });
 
         } catch (IllegalStateException e) {
-            // expected business exception → just rethrow after logging
             log.error("[GET_MESSAGE_FAILED] Business exception messageId={}, senderId={}",
                     messageId, senderId, e);
             throw e;
 
         } catch (Exception e) {
-            // unexpected system failure
             log.error("[GET_MESSAGE_FAILED] Unexpected error messageId={}, senderId={}",
                     messageId, senderId, e);
             throw new RuntimeException("Internal server error while fetching message", e);
@@ -197,13 +194,11 @@ public class MessageService {
                     });
 
         } catch (IllegalStateException e) {
-            // expected business exception → just rethrow after logging
             log.error("[GET_MESSAGE_FAILED] Business exception messageId={}",
                     messageId,  e);
             throw e;
 
         } catch (Exception e) {
-            // unexpected system failure
             log.error("[GET_MESSAGE_FAILED] Unexpected error messageId={}",
                     messageId, e);
             throw new RuntimeException("Internal server error while fetching message", e);
@@ -240,7 +235,7 @@ public class MessageService {
                     message.getId(), message.isDeletedForEveryone());
 
             message.setDeletedForEveryone(true);
-            message.setEditedAt(LocalDateTime.now()); // optional but useful audit trail
+            message.setEditedAt(LocalDateTime.now());
 
             messageRepository.save(message);
 

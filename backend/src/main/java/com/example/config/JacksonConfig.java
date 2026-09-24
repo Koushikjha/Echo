@@ -1,4 +1,3 @@
-    // com/gigshield/config/JacksonConfig.java
     package com.example.config;
 
     import com.fasterxml.jackson.databind.ObjectMapper;

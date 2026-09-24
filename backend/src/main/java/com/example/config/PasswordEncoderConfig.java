@@ -1,4 +1,3 @@
-// com/gigshield/config/PasswordEncoderConfig.java
 package com.example.config;
 
 import org.springframework.context.annotation.Bean;

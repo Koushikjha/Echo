@@ -1,4 +1,3 @@
-// com/gigshield/auth/entity/OtpRecord.java
 package com.example.auth.entity;
 
 import jakarta.persistence.*;

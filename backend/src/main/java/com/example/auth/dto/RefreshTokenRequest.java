@@ -1,4 +1,3 @@
-// com/gigshield/auth/dto/RefreshTokenRequest.java
 package com.example.auth.dto;
 
 import jakarta.validation.constraints.NotBlank;

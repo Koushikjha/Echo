@@ -41,7 +41,6 @@ public class ChatController {
         return ResponseEntity.ok(msg);
     }
 
-    // ── Get conversations list ─────────────────────────────────────────────────
 
     @GetMapping("/conversations")
     public ResponseEntity<List<ConversationListDTO>> getConversations(
@@ -51,7 +50,6 @@ public class ChatController {
         return ResponseEntity.ok(chatOrchestrationService.getUserConversations(userId));
     }
 
-    // ── Get messages ──────────────────────────────────────────────────────────
 
     @GetMapping("/conversations/{conversationId}/messages")
     public ResponseEntity<List<MessageDTO>> getMessages(
@@ -68,7 +66,6 @@ public class ChatController {
         return ResponseEntity.ok(messages);
     }
 
-    // ── Mark seen ─────────────────────────────────────────────────────────────
 
     @PostMapping("/conversations/{conversationId}/seen")
     public ResponseEntity<Void> markSeen(
@@ -80,7 +77,6 @@ public class ChatController {
         return ResponseEntity.ok().build();
     }
 
-    // ── Mark all delivered ────────────────────────────────────────────────────
 
     @PostMapping("/markBulkDelivery")
     public ResponseEntity<Void> markAllDelivered(
@@ -91,7 +87,6 @@ public class ChatController {
         return ResponseEntity.ok().build();
     }
 
-    // ── Delete message for me ─────────────────────────────────────────────────
 
     @DeleteMapping("/conversations/{conversationId}/messages/{messageId}/me")
     public ResponseEntity<Void> deleteForMe(
@@ -104,7 +99,6 @@ public class ChatController {
         return ResponseEntity.noContent().build();
     }
 
-    // ── Delete message for everyone ───────────────────────────────────────────
 
     @DeleteMapping("/conversations/{conversationId}/messages/{messageId}/everyone")
     public ResponseEntity<Void> deleteForEveryone(
@@ -117,7 +111,6 @@ public class ChatController {
         return ResponseEntity.noContent().build();
     }
 
-    // ── Edit message ──────────────────────────────────────────────────────────
 
     @PatchMapping("/conversations/{conversationId}/messages/{messageId}")
     public ResponseEntity<Void> editMessage(
@@ -131,8 +124,6 @@ public class ChatController {
         return ResponseEntity.ok().build();
     }
 
-    // ── Delete conversation for me ────────────────────────────────────────────
-
     @DeleteMapping("/conversations/{conversationId}/me")
     public ResponseEntity<Void> deleteConversationForMe(
             @PathVariable Long conversationId,
@@ -143,7 +134,6 @@ public class ChatController {
         return ResponseEntity.noContent().build();
     }
 
-    // ── Delete conversation for everyone ──────────────────────────────────────
 
     @DeleteMapping("/conversations/{conversationId}/everyone")
     public ResponseEntity<Void> deleteConversationForEveryone(
@@ -258,7 +248,6 @@ public class ChatController {
         );
     }
 
-    // ── Internal helper ───────────────────────────────────────────────────────
 
     private Long resolveUserId(UserDetails userDetails) {
         User user = userService.findByPhone(userDetails.getUsername());

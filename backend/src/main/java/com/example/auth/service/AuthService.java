@@ -25,14 +25,12 @@ public class AuthService {
     private final UserService userService;
     private final RefreshTokenRepository refreshTokenRepo;
 
-    // ── Step 1: Send OTP ─────────────────────────────
 
     @Transactional
     public void sendOtp(SendOtpRequest request) {
         otpService.generateAndSend(request.getPhone());
     }
 
-    // ── Step 2: Verify OTP → issue tokens ────────────
 
     @Transactional
     public AuthResponse verifyOtp(VerifyOtpRequest request) {
@@ -51,7 +49,6 @@ public class AuthService {
         return buildTokenPair(user.getPhone(), user.getRole().name(), isNew[0]);
     }
 
-    // ── Refresh token flow ───────────────────────────
 
     @Transactional
     public AuthResponse refresh(RefreshTokenRequest request) {
@@ -67,13 +64,11 @@ public class AuthService {
             throw new IllegalStateException("Refresh token expired");
         }
 
-        // 🔥 CHANGED: stored.getPhone() instead of username
         User user = userService.findByPhone(stored.getPhone());
 
         return buildTokenPair(user.getPhone(), user.getRole().name(),false);
     }
 
-    // ── Logout ───────────────────────────────────────
 
     @Transactional
     public void logout(String phone) {
@@ -81,7 +76,6 @@ public class AuthService {
         log.info("All refresh tokens revoked for phone={}", phone);
     }
 
-    // ── Token builder ────────────────────────────────
 
     private AuthResponse buildTokenPair(String phone, String role,boolean isNewUser) {
 
@@ -101,7 +95,7 @@ public class AuthService {
                 .refreshToken(refreshToken.getToken())
                 .tokenType("Bearer")
                 .expiresIn(86400)
-                .newUser(isNewUser)     // 🔥
+                .newUser(isNewUser)
                 .build();
     }
 

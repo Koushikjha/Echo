@@ -27,7 +27,6 @@ public class ChatQueryHelper {
     private final MessageReceiptService receiptService;
 
 
-    // ===== SHARED MESSAGE FETCH HELPER =====
     public List<MessageDTO> fetchMessages(Long conversationId, Long userId, Long offsetId,LocalDateTime visibleFrom) {
 
 
@@ -52,7 +51,6 @@ public class ChatQueryHelper {
     }
 
 
-    // ===== SHARED RECEIPT + DTO MAPPER =====
     public List<MessageDTO> mapToDTO(List<ChatMessage> messages, Long conversationId, Long userId) {
 
         List<Long> ids = messages.stream().map(ChatMessage::getId).toList();
@@ -76,7 +74,6 @@ public class ChatQueryHelper {
                 .toList();
     }
 
-    // ===== DTO CONSTRUCTOR HELPER =====
     public MessageDTO toMessageDTO(ChatMessage m, Long conversationId, boolean delivered, boolean seen,
                                         String handleName) {
         return new MessageDTO(
@@ -93,7 +90,6 @@ public class ChatQueryHelper {
         );
     }
 
-    // ===== SHARED LIFECYCLE MESSAGE FETCH HELPER =====
     public List<MessageDTO> fetchLifecycleMessages(
             ParticipantLifecycle pl,
             Long userId,

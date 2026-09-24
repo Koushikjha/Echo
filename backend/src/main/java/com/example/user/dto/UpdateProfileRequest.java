@@ -1,4 +1,3 @@
-// com/gigshield/user/dto/UpdateProfileRequest.java
 package com.example.user.dto;
 
 import jakarta.validation.constraints.NotBlank;

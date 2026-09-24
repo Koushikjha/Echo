@@ -71,7 +71,6 @@ public class MessageReceiptService {
                     message.getId(), userId);
 
         } catch (DataIntegrityViolationException ex) {
-            // Already created by another tx / retry
             log.debug("[RECEIPT_ALREADY_EXISTS_RACE_SAFE] messageId={} userId={}",
                     message.getId(), userId);
         }
@@ -109,7 +108,7 @@ public class MessageReceiptService {
         } catch (Exception ex) {
             log.error("[RECEIPT_MARK_ALL_DELIVERED_FAILED] userId={} error={}",
                     userId, ex.getMessage(), ex);
-            throw ex; // IMPORTANT → triggers rollback
+            throw ex;
         }
     }
 
@@ -127,7 +126,7 @@ public class MessageReceiptService {
         } catch (Exception ex) {
             log.error("[RECEIPT_MARK_ALL_SEEN_FAILED] convoId={} userId={} error={}",
                     conversationId, userId, ex.getMessage(), ex);
-            throw ex; // rollback
+            throw ex;
         }
     }
 
@@ -148,13 +147,11 @@ public class MessageReceiptService {
             return receipt;
 
         } catch (RuntimeException e) {
-            // expected business case → log + rethrow
             log.error("[GET_RECEIPT_BUSINESS_FAIL] messageId={}, userId={}",
                     messageId, userId, e);
             throw e;
 
         } catch (Exception e) {
-            // unexpected system failure
             log.error("[GET_RECEIPT_SYSTEM_FAIL] messageId={}, userId={}",
                     messageId, userId, e);
             throw new RuntimeException("Internal error while fetching receipt", e);

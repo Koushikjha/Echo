@@ -49,14 +49,12 @@ public class ChatServicePrivate {
     private final EventLogService eventLogService;
     private final SimpMessagingTemplate messagingTemplate;
 
-    // ===== SEND PRIVATE MESSAGE (handles both first message and subsequent) =====
     @Transactional
     public MessageDTO sendMessage(Long senderId, Long receiverId, String content, Long conversationId) {
 
         log.info("[SEND_PRIVATE_MESSAGE] sender={} receiver={} conversationId={}",
                 senderId, receiverId, conversationId);
 
-        // 1 — Validate receiver exists
         userService.validateExists(receiverId);
 
         String senderHandleName=userService.getHandleNameById(senderId);
@@ -67,7 +65,6 @@ public class ChatServicePrivate {
 
         if (conversationId == null) {
 
-            // NEW CHAT — find or create conversation
             String pairKey = Math.min(senderId, receiverId) + "_" + Math.max(senderId, receiverId);
             log.debug("[PAIR_KEY] {}", pairKey);
 
@@ -137,7 +134,6 @@ public class ChatServicePrivate {
             } else {
                 log.info("[CONVO_EXISTS] id={} ensuring lifecycles", conversation.getId());
 
-                // Conversation row exists but lifecycle may be closed — restart if needed
                 boolean check=conversationLifecycleService.startIfNotExists(conversation);
                 if(check){
                     eventLogService.logEvent(
@@ -178,14 +174,11 @@ public class ChatServicePrivate {
 
         } else {
 
-            // EXISTING CHAT — validate and send
             conversation = conversationService
                     .getById(conversationId);
 
-            // 2 — Sender must be an active participant
             participantLifecycleService.validateActiveParticipant(conversationId, senderId);
 
-            // 3 — Receiver lifecycle: reopen if they had deleted for me (independent lifecycles)
             boolean check=participantLifecycleService.startIfNotExists(conversationId, receiverId);
             if(check){
                 eventLogService.logEvent(
@@ -200,7 +193,7 @@ public class ChatServicePrivate {
             }
         }
 
-        // 4 — Save message
+
         ChatMessage saved = messageService.savePrivateMessage(conversation, senderId, content);
 
         eventLogService.logEvent(
@@ -219,10 +212,8 @@ public class ChatServicePrivate {
         );
 
 
-        // 5 — Eager receipt creation for both participants
         receiptService.createInitialReceipts(saved, senderId,senderHandleName, receiverId);
 
-        // 6 — Update conversation ordering timestamp
         conversationService.updateLastTime(conversation, saved.getCreatedAt());
 
         MessageReceipt receiverReceipt=receiptService.getReceiptByMessageAndUser(saved.getId(),receiverId);
@@ -242,7 +233,6 @@ public class ChatServicePrivate {
 
         conversationService.getById(conversationId);
 
-        // Authorization — only active participant can delete for themselves
         participantLifecycleService.validateActiveParticipant(conversationId, userId);
         participantLifecycleService.endParticipantLifecycle(conversationId, userId,LocalDateTime.now());
 
@@ -259,7 +249,6 @@ public class ChatServicePrivate {
         log.info("[CHAT_HIDDEN_FOR_USER] convoId={} userId={}", conversationId, userId);
     }
 
-    // ===== DELETE CHAT FOR EVERYONE =====
     @Transactional
     public void deleteConversationForEveryone(Long conversationId, Long userId) {
 
@@ -267,12 +256,10 @@ public class ChatServicePrivate {
 
         Conversation conversation=conversationService.getById(conversationId);
 
-        // Authorization — only active participant can delete for everyone
         participantLifecycleService.validateActiveParticipant(conversationId, userId);
 
         LocalDateTime now=LocalDateTime.now();
 
-        // End conversation lifecycle globally
         conversationLifecycleService.endConversationLifecycle(conversationId,now);
 
 
@@ -289,7 +276,6 @@ public class ChatServicePrivate {
                 )
         );
 
-        // End both participant lifecycles
         participantLifecycleService.endParticipantLifecycle(conversationId, userId,now);
 
         eventLogService.logEvent(
@@ -327,7 +313,6 @@ public class ChatServicePrivate {
         log.info("[DELETE_PRIVATE_CHAT_FOR_EVERYONE_COMPLETED] convoId={}", conversationId);
     }
 
-    // ===== GET MESSAGES (latest window, no offset) =====
     @Transactional(readOnly = true)
     public List<MessageDTO> getMessages(Long conversationId, Long userId) {
 
@@ -351,7 +336,6 @@ public class ChatServicePrivate {
         return chatQueryHelper.fetchMessages(conversationId, userId, null,visibleFrom);
     }
 
-    // ===== GET MESSAGES (paginated with offsetId) =====
     @Transactional(readOnly = true)
     public List<MessageDTO> getMessages(Long conversationId, Long userId, Long offsetId) {
 
@@ -374,7 +358,6 @@ public class ChatServicePrivate {
         return chatQueryHelper.fetchMessages(conversationId, userId, offsetId,visibleFrom);
     }
 
-    // ===== CONVERSATION LIFECYCLE HISTORY (time-travel) =====
     @Transactional(readOnly = true)
     public List<ConversationLifecycleDTO> getPrivateConversationLifecycleHistory(Long conversationId) {
 
@@ -387,7 +370,6 @@ public class ChatServicePrivate {
         return lifecycleDTOS;
     }
 
-    // ===== PARTICIPANT LIFECYCLES OF A CONVERSATION LIFECYCLE (time-travel) =====
     @Transactional(readOnly = true)
     public List<ParticipantLifecycleDTO> getPrivateParticipantLifecyclesOfConversationLifecycle(
             Long conversationId,
@@ -397,10 +379,8 @@ public class ChatServicePrivate {
         log.info("[PARTICIPANT_LIFECYCLES] convoId={} lifecycleId={} requestingUser={}",
                 conversationId, conversationLifecycleId, requestingUserId);
 
-        // Authorization — requesting user must be a participant of this conversation
         participantService.validateParticipant(conversationId, requestingUserId);
 
-        // Service already validates conversationLifecycleId belongs to conversationId
         ConversationLifecycle conversationLifecycle = conversationLifecycleService
                 .getConversationLifeCycle(conversationId, conversationLifecycleId);
 
@@ -413,20 +393,17 @@ public class ChatServicePrivate {
                 );
     }
 
-    // ===== LOAD MESSAGES OF A SPECIFIC PARTICIPANT LIFECYCLE (time-travel, latest) =====
     @Transactional(readOnly = true)
     public List<MessageDTO> loadMessagesOfLifecycle(Long participantLifecycleId, Long userId) {
 
         log.info("[LOAD_LIFECYCLE_MESSAGES] plId={} userId={}", participantLifecycleId, userId);
 
-        // getLifecycleById validates ownership (userId must match lifecycle's userId)
         ParticipantLifecycle pl = participantLifecycleService
                 .getLifecycleById(participantLifecycleId, userId);
 
         return chatQueryHelper.fetchLifecycleMessages(pl, userId, null);
     }
 
-    // ===== LOAD MESSAGES OF A SPECIFIC PARTICIPANT LIFECYCLE (time-travel, paginated) =====
     @Transactional(readOnly = true)
     public List<MessageDTO> loadMessagesOfLifecycle(
             Long participantLifecycleId,
@@ -447,17 +424,14 @@ public class ChatServicePrivate {
 
         log.info("[RESTORE_LIFECYCLE] senderId={} receiverId={}", senderId, receiverId);
 
-        // 1 — Derive pairKey
         String pairKey = Math.min(senderId, receiverId) + "_" + Math.max(senderId, receiverId);
 
-        // 2 — Find conversation — nothing to restore if it never existed
         Conversation conversation = conversationService
                 .findByTypeAndPairKey(ConversationType.PRIVATE, pairKey)
                 .orElseThrow(() -> new IllegalStateException("No conversation found to restore"));
 
         Long conversationId = conversation.getId();
 
-        // 3 — Reject if sender already has an active lifecycle
         boolean alreadyActive = participantLifecycleService
                 .getActiveLifecycle(conversationId, senderId)
                 .isPresent();
@@ -468,12 +442,10 @@ public class ChatServicePrivate {
             throw new IllegalStateException("Chat is already active — nothing to restore");
         }
 
-        // 4 — Find last closed lifecycle for sender
         ParticipantLifecycle lastClosed = participantLifecycleService
                 .findLastClosedLifecycle(conversationId, senderId)
                 .orElseThrow(() -> new IllegalStateException("No closed lifecycle found to restore"));
 
-        // 5 — If conversation lifecycle ended, restore it
         boolean check=conversationLifecycleService.undoLifecycle(conversation.getId());
         if(check){
             eventLogService.logEvent(
@@ -487,7 +459,6 @@ public class ChatServicePrivate {
             );
         }
 
-        // 6 — Undo the delete: set leftAt = null on the last closed lifecycle
         participantLifecycleService.undoLifecycleClose(lastClosed);
 
         eventLogService.logEvent(
@@ -510,10 +481,8 @@ public class ChatServicePrivate {
         log.info("[CHECK_RESTORE_ELIGIBILITY] userId={}, otherUserId={}", senderId, receiverId);
 
         try {
-            // 1 — Build pair key (same logic you already use everywhere)
             String pairKey = Math.min(senderId, receiverId) + "_" + Math.max(senderId, receiverId);
 
-            // 2 — Find conversation by pair key
             Optional<Conversation> optionalConversation =
                     conversationService.findByTypeAndPairKey(ConversationType.PRIVATE, pairKey);
 
@@ -524,7 +493,6 @@ public class ChatServicePrivate {
 
             Long conversationId = optionalConversation.get().getId();
 
-            // 3 — Check if user has a last closed lifecycle
             boolean hasClosedLifecycle =
                     participantLifecycleService
                             .findLastClosedLifecycle(conversationId, senderId)
@@ -538,7 +506,7 @@ public class ChatServicePrivate {
         } catch (Exception ex) {
             log.error("[CHECK_RESTORE_ELIGIBILITY_ERROR] userId={}, otherUserId={}",
                     senderId, receiverId, ex);
-            throw ex; // let global handler deal with it
+            throw ex;
         }
     }
 

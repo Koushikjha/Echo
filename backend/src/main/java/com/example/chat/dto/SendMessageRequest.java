@@ -10,5 +10,5 @@ public class SendMessageRequest {
     private Long receiverId;
     @NotBlank
     private String content;
-    private Long conversationId; // null for first message
+    private Long conversationId;
 }

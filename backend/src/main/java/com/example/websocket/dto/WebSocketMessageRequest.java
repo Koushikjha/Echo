@@ -10,5 +10,5 @@ import lombok.Setter;
 public class WebSocketMessageRequest {
     private Long receiverId;
     private String content;
-    private Long conversationId;  // null for first message
+    private Long conversationId;
 }

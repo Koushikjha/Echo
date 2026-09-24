@@ -1,4 +1,3 @@
-// com/gigshield/auth/dto/AuthResponse.java
 package com.example.auth.dto;
 
 import lombok.Builder;

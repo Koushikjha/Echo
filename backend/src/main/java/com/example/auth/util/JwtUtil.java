@@ -23,7 +23,6 @@ public class JwtUtil {
         this.signingKey = io.jsonwebtoken.security.Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    // 🔥 Generate token using PHONE as subject
     public String generateToken(String phone) {
         return Jwts.builder()
                 .setSubject(phone) // 👈 phone stored in subject
@@ -33,7 +32,6 @@ public class JwtUtil {
                 .compact();
     }
 
-    // optional: if you still want claims version
     public String generateAccessToken(String phone, Map<String, Object> claims) {
         return Jwts.builder()
                 .setSubject(phone)
@@ -44,7 +42,6 @@ public class JwtUtil {
                 .compact();
     }
 
-    // 🔥 Extract PHONE (not username anymore)
     public String extractPhone(String token) {
         return parseClaims(token).getSubject();
     }

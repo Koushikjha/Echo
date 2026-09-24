@@ -7,7 +7,8 @@ backend.env
 backend/*.jar
 backend/src/main/resources/application-secrets.yaml
 backend/target/classes/application-secrets.yaml
-
+backend/src/main/java/com/example/chat/service/ChatServiceGroup.java
+backend/src/main/java/com/example/chat/group
 
 # frontend
 frontend/logs
@@ -42,4 +43,5 @@ frontend/.env.*
 *.sw?
 *.iml
 
-k8s/README.md
+k8s
+

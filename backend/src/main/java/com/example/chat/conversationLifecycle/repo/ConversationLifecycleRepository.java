@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @Repository
 public interface ConversationLifecycleRepository extends JpaRepository<ConversationLifecycle,Long> {
-    //Get active lifecycle
+
     Optional<ConversationLifecycle>
     findByConversationIdAndEndedAtIsNull(Long conversationId);
 

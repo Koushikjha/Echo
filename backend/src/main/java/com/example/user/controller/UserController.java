@@ -1,4 +1,3 @@
-// com/gigshield/user/controller/UserController.java
 package com.example.user.controller;
 
 

@@ -1,4 +1,3 @@
-// com/gigshield/user/service/UserService.java
 package com.example.user.service;
 
 import com.example.auth.dto.RegisterRequest;
@@ -41,36 +40,13 @@ public class UserService implements UserDetailsService {
                         "User not found: " + phone));
     }
 
-//    /**
-//     * Called after OTP is verified.
-//     * If user exists → login flow, return existing user.
-//     * If user doesn't exist → registration flow, create and return.
-//     */
-//    @Transactional
-//    public User findOrCreate(String phone, RegisterRequest registrationData) {
-//        return userRepository.findByPhone(phone)
-//                .orElseGet(() -> {
-//                    if (registrationData == null) {
-//                        throw new IllegalArgumentException(
-//                                "New user must provide registration details " +
-//                                        "(fullName, username)");
-//                    }
-//                    validateRegistrationData(registrationData);
-//                    User newUser = userMapper.toEntity(registrationData);
-//                    log.info("New user registered: phone={}", phone);
-//                    return userRepository.save(newUser);
-//                });
-//    }
+
 
     public User findByPhone(String phone) {
         return userRepository.findByPhone(phone)
                 .orElseThrow(() -> new UsernameNotFoundException(
                         "User not found: " + phone));
     }
-
-//    public Optional<User> getByPhone(String phone){
-//        return userRepository.findByPhone(phone);
-//    }
 
 
 
@@ -92,18 +68,6 @@ public class UserService implements UserDetailsService {
         return userRepository.count();
     }
 
-    // ── Internal ──────────────────────────────────────────────────────────────
-
-//    private void validateRegistrationData(RegisterRequest req) {
-//        if (req.getFullName() == null || req.getFullName().isBlank()) {
-//            throw new IllegalArgumentException(
-//                    "fullName is required for registration");
-//        }
-//        if (req.getUsername() == null || req.getUsername().isBlank()) {
-//            throw new IllegalArgumentException(
-//                    "username is required for registration");
-//        }
-//    }
 
     @Transactional(readOnly = true)
     public User findById(Long userId) {
@@ -205,7 +169,7 @@ public class UserService implements UserDetailsService {
                     isNew[0] = true;
                     User newUser = User.builder()
                             .phone(phone)
-                            .role(UserRole.ROLE_USER)      // don't default to ADMIN
+                            .role(UserRole.ROLE_USER)
                             .profileComplete(false)
                             .build();
                     log.info("New bare user created: phone={}", phone);
