@@ -2,7 +2,7 @@
 
 > A lifecycle-driven real-time messaging system built around temporal participation windows rather than traditional membership checks.
 >
-> The platform combines event-oriented design, lifecycle versioning, real-time communication, historical reconstruction, and per-user message state management to provide accurate visibility control, conversation recovery, and time-travel capabilities.
+> The platform combines event-oriented design, lifecycle versioning, real-time communication, and per-user message state management to provide accurate visibility control, conversation recovery, and time-travel capabilities.
 
 ---
 
@@ -41,7 +41,6 @@ Every major capability is derived from these windows:
 * Rejoin semantics
 * Delivered tracking
 * Seen tracking
-* Time-travel reconstruction
 * Historical auditing
 
 The platform currently supports:
@@ -53,7 +52,6 @@ The platform currently supports:
 * Lifecycle-driven visibility
 * Per-user message receipts
 * Conversation restoration
-* Historical conversation reconstruction
 * Pagination and lazy loading
 * Lifecycle history browsing
 
@@ -140,7 +138,6 @@ Capabilities include:
 * Online status
 * Offline status
 * Last seen timestamp
-* Automatic state updates during reconnects
 
 ---
 
@@ -199,7 +196,7 @@ Frontend (React)
 
         ▼
 
-Spring Cloud Gateway
+Chat controller
 
         │
 
@@ -225,31 +222,7 @@ MySQL
 
 Future deployment architecture:
 
-```text
-API Gateway
 
-    │
-
-    ├──────── User Service
-
-    ├──────── Messaging Service
-
-    ├──────── Notification Service
-
-    └──────── Event Service
-
-            │
-
-            ▼
-
-        Eureka Registry
-
-            │
-
-            ▼
-
-         OpenFeign
-```
 
 ---
 
@@ -496,29 +469,10 @@ Solved through dedicated MessageReceipt entities.
 
 ---
 
-## Historical Reconstruction
 
-Past conversation states must remain accessible.
-
-Solved through immutable lifecycle records.
-
----
-
-# Future Enhancements
-
-* Group conversations
-* Typing indicators
-* Notification service
-* Event log service
-* Kafka event publishing
-* Elasticsearch message search
-* Media and attachment support
-* Distributed event sourcing infrastructure
-
----
 
 ## Outcome
 
-Temporal Chat Architecture evolved beyond a conventional chat application into a lifecycle-driven messaging platform capable of real-time communication, historical reconstruction, and user-specific temporal visibility.
+Temporal Chat Architecture evolved beyond a conventional chat application into a lifecycle-driven messaging platform capable of real-time communication, and user-specific temporal visibility.
 
 Its primary innovation is treating participation as a time-based record rather than a membership flag, enabling capabilities that are difficult to achieve using traditional chat architectures.
