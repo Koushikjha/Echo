@@ -9,6 +9,7 @@ backend/src/main/resources/application-secrets.yaml
 backend/target/classes/application-secrets.yaml
 backend/src/main/java/com/example/chat/service/ChatServiceGroup.java
 backend/src/main/java/com/example/chat/group
+backend/src/main/java/com/example/chat/dto/GroupProfileDTO.java
 
 # frontend
 frontend/logs
