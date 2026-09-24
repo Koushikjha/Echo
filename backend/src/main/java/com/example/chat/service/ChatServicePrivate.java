@@ -10,7 +10,6 @@ import com.example.chat.dto.ConversationLifecycleDTO;
 import com.example.chat.dto.ConversationListDTO;
 import com.example.chat.dto.MessageDTO;
 import com.example.chat.dto.ParticipantLifecycleDTO;
-import com.example.chat.group.enums.GroupType;
 import com.example.chat.message.entity.ChatMessage;
 import com.example.chat.message.service.MessageService;
 import com.example.chat.messageReceipt.entity.MessageReceipt;
